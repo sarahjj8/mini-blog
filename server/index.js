@@ -1,12 +1,23 @@
 import cors from "cors";
 import express from "express";
+import path from "path";
+import { fileURLToPath } from "url";
 import { errorHandler } from "./middleware/errorHandler.js";
 import { getComments, getPosts, getCategories, createPost, getCategoryById, getPostById, createComment, createCategory } from "./database/blogDatabase.js";
 import { validateCreateCategory, validateCreateComment, validateCreatePost, validateId } from "./utils/validate_blog.js";
 
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+
 const app = express();
 const PORT = Number(process.env.PORT) || 3000;
 const APP_VERSION = "0.1.0-practice";
+
+app.use(
+    express.static(
+        path.join(__dirname, "public")
+    )
+);
 
 app.use(cors());
 app.use(express.json());

@@ -1,26 +1,20 @@
-import fs from "fs";
-import { fileURLToPath } from "url";
-import path from "path";
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
-
 export const seedPosts = [
   {
     title: "Getting Started with Node.js",
     description: "Node.js is a powerful runtime for backend development.",
-    image: fs.readFileSync(path.join(__dirname, "../database/seeds/node.png")),
+    image: "/images/node.png",
     category_id: 1,
   },
   {
     title: "Understanding REST APIs",
     description: "REST APIs allow applications to communicate over HTTP.",
-    image: fs.readFileSync(path.join(__dirname, "../database/seeds/api.png")),
+    image: "/images/api.png",
     category_id: 2,
   },
   {
     title: "Healthy Daily Routine",
     description: "Simple habits that improve your lifestyle.",
-    image: fs.readFileSync(path.join(__dirname, "../database/seeds/life.jpg")),
+    image: "/images/life.jpg",
     category_id: 3,
   },
 ];

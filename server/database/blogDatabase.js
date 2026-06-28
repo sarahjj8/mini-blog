@@ -24,7 +24,7 @@ database.exec(`
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     title TEXT NOT NULL,
     description TEXT NOT NULL,
-    image BLOB,
+    image TEXT,
     category_id INTEGER,
     created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
     updated_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
@@ -47,14 +47,14 @@ database.exec(`
 const statements = {
   countPosts: database.prepare("SELECT COUNT(*) AS count FROM posts"),
   getPosts: database.prepare(`
-    SELECT id, title, description, image, category_id
+    SELECT id, title, description, image, category_id, created_at
     FROM posts
     WHERE (? IS NULL OR id = ?)
         AND (? IS NULL OR category_id = ?)
     ORDER BY id ASC
   `),
   getComments: database.prepare(`
-    SELECT id, mail, post_id, description, approved 
+    SELECT id, mail, post_id, description, approved, created_at
     FROM comments
     WHERE (? IS NULL OR post_id = ?)
   `),
@@ -63,12 +63,12 @@ const statements = {
     FROM categories
   `),
   getPostById: database.prepare(`
-    SELECT id, title, description, image, category_id
+    SELECT id, title, description, image, category_id, created_at
     FROM posts
     WHERE id = ?
   `),
   getCommentById: database.prepare(`
-    SELECT id, mail, post_id, description, approved 
+    SELECT id, mail, post_id, description, approved, created_at
     FROM comments
     WHERE id = ?
   `),
@@ -151,6 +151,7 @@ function mapComment(row) {
     post_id: row.post_id, 
     description: row.description, 
     approved: Boolean(row.approved),
+    created_at: row.created_at
   };
 }
 
@@ -163,8 +164,9 @@ function mapPost(row) {
     id: row.id,
     title: row.title,
     description: row.description,
-    image: row.image ? row.image.toString("base64") : null,
-    category_id: row.category_id
+    image: row.image,
+    category_id: row.category_id,
+    created_at: row.created_at
   };
 }
 
@@ -198,11 +200,10 @@ export function getCommentById(params) {
 }
 
 export function createPost(params) {
-  const image = fs.readFileSync(params.image);
   const result = statements.createPost.run(
     params.title.trim(),
     params.description.trim(),
-    image,
+    params.image.trim(),
     Number(params.category_id)
   );
   return getPostById({id : Number(result.lastInsertRowid)});
