@@ -1,3 +1,7 @@
+import { postSchema, commentSchema } from "../../shared/validation/schema";
+import { z } from "zod";
+import { validate } from "./validate";
+
 const BASE_URL = "http://localhost:3000";
 
 export async function getPosts() {
@@ -6,7 +10,10 @@ export async function getPosts() {
     if (!response.ok) 
         throw new Error("Failed to fetch posts");
 
-    return response.json();
+    const json = await response.json();
+    validate(z.array(postSchema), json.data, "Invalid posts.");
+
+    return json;
 }
 
 export async function getPostById(postId) {
@@ -17,7 +24,10 @@ export async function getPostById(postId) {
     if (!response.ok)
         throw new Error("Failed to fetch post.");
     
-    return response.json();
+    const json = await response.json();
+    validate(postSchema, json.data[0], "Invalid post.");
+
+    return json;
 }
 
 export async function getCommentsByPostId(postId) {
@@ -26,7 +36,10 @@ export async function getCommentsByPostId(postId) {
     if (!response.ok)
         throw new Error("Failed to fetch comments");
 
-    return response.json();
+    const json = await response.json();
+    validate(z.array(commentSchema), json.data, "Invalid comments.")
+
+    return json;
 }
 
 export async function createComment(data) {

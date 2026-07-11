@@ -4,7 +4,8 @@ import path from "path";
 import { fileURLToPath } from "url";
 import { errorHandler } from "./middleware/errorHandler.js";
 import { getComments, getPosts, getCategories, createPost, getCategoryById, getPostById, createComment, createCategory } from "./database/blogDatabase.js";
-import { validateCreateCategory, validateCreateComment, validateCreatePost, validateId } from "./utils/validate_blog.js";
+import { validate, ValidationError } from "./utils/validate_blog.js";
+import { idSchema, createPostSchema, createCommentSchema, createCategorySchema } from "../shared/validation/schema.js";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -44,7 +45,8 @@ app.get("/health", (req, res) => {
 app.get("/comments", (req, res) => {
   try{
     let {post_id = undefined} = req.query;
-    post_id = validateId(post_id);
+    if (post_id !== undefined)
+      post_id = validate(idSchema, post_id);
     const data = getComments({
       post_id: post_id
     });
@@ -53,7 +55,13 @@ app.get("/comments", (req, res) => {
       data: data
     });
   } catch (err) {
-      res.status(400).json({
+    if (err instanceof ValidationError) {
+      return res.status(400).json({
+        status: "error",
+        errors: err.errors,
+      });
+    }
+    res.status(400).json({
       status: "error",
       message: err.message,
     });
@@ -78,8 +86,10 @@ app.get("/categories", (req, res) => {
 app.get("/posts", (req, res) => {
   try{
     let {post_id = undefined, category_id = undefined} = req.query;
-    post_id = validateId(post_id);
-    category_id = validateId(category_id);
+    if (post_id !== undefined)
+      post_id = validate(idSchema, post_id);
+    if (category_id !== undefined)
+      category_id = validate(idSchema, category_id);
     const data = getPosts({
       post_id: post_id,
       category_id: category_id
@@ -98,7 +108,7 @@ app.get("/posts", (req, res) => {
 
 app.post("/post", (req, res) => {
   try {
-    const data = validateCreatePost(req.body);
+    const data = validate(createPostSchema, req.body);
 
     const category = getCategoryById({
       id: data.category_id,
@@ -119,6 +129,13 @@ app.post("/post", (req, res) => {
     });
 
   } catch (err) {
+    if (err instanceof ValidationError) {
+      return res.status(400).json({
+        status: "error",
+        errors: err.errors,
+      });
+    }
+
     return res.status(400).json({
       status: "error",
       message: err.message,
@@ -128,7 +145,7 @@ app.post("/post", (req, res) => {
 
 app.post("/category", (req, res) => {
   try {
-    const data = validateCreateCategory(req.body);
+    const data = validate(createCategorySchema, req.body);
     const result = createCategory(data);
 
     return res.status(201).json({
@@ -146,7 +163,7 @@ app.post("/category", (req, res) => {
 
 app.post("/comment", (req, res) => {
   try {
-    const data = validateCreateComment(req.body);
+    const data = validate(createCommentSchema, req.body);
 
     const post = getPostById({
       id: data.post_id,

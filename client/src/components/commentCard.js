@@ -9,3 +9,26 @@ export function commentCard(comment) {
         </div>
     `;
 }
+
+export function commentCardElement(comment) {
+    const card = document.createElement("div");
+    card.className = "comment-card";
+
+    const mail = document.createElement("strong");
+    mail.className = "comment-mail";
+    mail.textContent = comment.mail;
+
+    const text = document.createElement("p");
+    text.className = "comment-text";
+    text.textContent = comment.description;
+
+    const date = document.createElement("span");
+    date.className = "comment-date";
+    date.textContent = new Date(comment.created_at).toLocaleString();
+
+    card.appendChild(mail);
+    card.appendChild(text);
+    card.appendChild(date);
+
+    return card;
+}

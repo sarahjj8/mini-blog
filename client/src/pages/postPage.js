@@ -38,15 +38,6 @@ export async function postPage(postId) {
 
         showComments(postId);
 
-        // const comments = await getCommentsByPostId(postId);    
-        // const commentsContainer = document.querySelector("#comments");
-        // if (!comments.data.length) {
-        //     commentsContainer.innerHTML = `
-        //         <p>No comments yet.</p>
-        //     `
-        // } else{
-        //     commentsContainer.innerHTML = comments.data.map(commentCard).join("");
-        // }
     } catch (error) {
         console.log(error);
 
@@ -62,7 +53,7 @@ export async function showComments(postId) {
     const commentsContainer = document.querySelector("#comments");
     if (!comments.data.length) {
         commentsContainer.innerHTML = `
-            <p>No comments yet.</p>
+            <p id="noComments">No comments yet.</p>
         `
     } else{
         commentsContainer.innerHTML = comments.data.map(commentCard).join("");

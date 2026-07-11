@@ -1,20 +1,23 @@
 import { createComment } from "../api";
-import { commentCard } from "./commentCard";
+import { commentCard, commentCardElement } from "./commentCard";
 import { showComments } from "../pages/postPage";
+import { createCommentSchema } from "../../../shared/validation/schema";
+import { showErrors, clearErrors } from "../error";
 
 export function commentForm(postId) {
     const form = document.querySelector("#comment-form");
+    form.noValidate = true;
+    
     form.innerHTML = `
         <h4>Leave a comment</h4>
-        <input type="email" name="mail" placeholder="Enter your email" required
+        <input type="email" name="mail" placeholder="Enter your email"
         />
-        <textarea name="description" placeholder="Your comment ..." required>
-        </textarea>
+        <textarea name="description" placeholder="Your comment ..."></textarea>
         <button type="submit">Submit</button>
     `;
 
     form.addEventListener("submit", async (e) => {
-        e.preventDefault();
+        e.preventDefault();        
         const formData = new FormData(form);
         const newComment = {
             post_id: Number(postId),
@@ -22,13 +25,22 @@ export function commentForm(postId) {
             description: formData.get("description")
         };
 
+        clearErrors();
+
+        const validation = createCommentSchema.safeParse(newComment);
+        console.log(validation);
+        if (!validation.success) {
+            console.log("validation.error:", validation.error);
+            showErrors(validation.error);
+            return;
+        }
+
         const submitButton = form.querySelector("button");
         submitButton.disabled = true;
 
         try{
             const response = await createComment(newComment);
-            showComments(postId);
-            // addNewCommentCard(response.data);
+            addNewCommentCard(response.data);
         } catch (error) {
             console.log(error);
             alert("Failed to send comment");
@@ -41,25 +53,13 @@ export function commentForm(postId) {
     return form;
 }
 
-// function addNewCommentCard(newComment) {
-//     const commentsContainer = document.querySelector("#comments");
+function addNewCommentCard(newComment) {
+    const commentsContainer = document.querySelector("#comments");
+    const emptyState = commentsContainer.querySelector("#noComments");
 
-//     // const commentsContainer = document.getElementById("comments");
-//     // const node = document.createElement("div");
-//     // node.setAttribute("calss", "comment-card");
-//     // node.innerHTML = `
-//     //     <strong class="comment-mail">${newComment.mail}</strong>
-//     //     <p class="comment-text">${newComment.description}</p>
-//     //     <span class="comment-date">
-//     //             ${new Date(newComment.created_at).toLocaleString()}
-//     //     </span>
-//     // `
+    if (emptyState) {
+        emptyState.remove();
+    }
 
-//     const emptyState = commentsContainer.querySelector("p");
-
-//     if (emptyState) {
-//         emptyState.remove();
-//     }
-
-//     commentsContainer.appendChild(commentCard(newComment));
-// }
+    commentsContainer.appendChild(commentCardElement(newComment));
+}

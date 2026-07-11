@@ -77,11 +77,13 @@ main {
 }
 
 .card {
+  position: relative;
   border-radius: 16px;
   overflow: hidden;
   box-shadow: 0 4px 8px 0 rgba(0,0,0,0.2);
   transition: 0.3s;
   cursor: pointer;
+  height: 390px;
 }
 
 .card:hover {
@@ -93,6 +95,18 @@ main {
   width: 100%;
   height: 220px;
   object-fit: cover;
+}
+
+.post-date {
+  position: absolute;
+  right: 10px;
+  bottom: 4px;
+  font-size: 0.8rem;
+  color: var(--text);
+}
+
+.card-content {
+  margin: 0% 3%;
 }
 
 .card-content p {
@@ -179,7 +193,7 @@ main {
 #comment-form input,
 #comment-form textarea {
     padding: 5px;
-    border: 1px solid var(--border);
+    border: 2px solid var(--border);
     border-radius: 8px;
     font-family: inherit;
 }
@@ -201,4 +215,14 @@ main {
 
 #comment-form button:hover {
     opacity: 0.8;
+}
+
+.error-field {
+    border-color: #e53935 !important;
+}
+
+.error-message {
+  color: #e53935 !important;
+  font-size: 12px;
+  line-height: 18px;
 }
